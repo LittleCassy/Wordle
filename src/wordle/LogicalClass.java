@@ -5,9 +5,12 @@
 package wordle;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Random;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 
@@ -19,6 +22,7 @@ public class LogicalClass {
 
     public static ArrayList<String> wordChar = new ArrayList<>();
     public static Tablero gameInstance;
+    public static String word;
 
     public static ArrayList<ArrayList<JTextPane>> allTrys = new ArrayList<>();
 
@@ -30,7 +34,7 @@ public class LogicalClass {
         for (int i = 0; i < aux_Str.length; i++) {
             wordChar.add(aux_Str[i]);
         }
-        System.out.println(FileShenanigans.words.get(aux));
+        word = FileShenanigans.words.get(aux);
         Init();
     }
 
@@ -59,7 +63,6 @@ public class LogicalClass {
         ArrayList<String> enteredWord = new ArrayList<>();
         
         for (int i = 0; i < aux.length; i++) {
-            //garri2 mod
             enteredWord.add(aux[i]);
         }
         
@@ -80,29 +83,46 @@ public class LogicalClass {
             System.out.print("Victoria");
             gameInstance.TextFieldPalabra.setEnabled(false);
             gameInstance.BotonEnviar.setEnabled(false);
-        } else {
+            gameInstance.TableroVictoria.setSize(400,250);
+            gameInstance.TableroVictoria.setVisible(true);
+        } else if(currentTry<=5){
             CheckYellow(wordAux, enteredWord);
         }
     }
 
-    public static void CheckYellow(ArrayList<String> inputWord, ArrayList<String> word) {
-        int[] repeats = new int[5];
+    public static void CheckYellow(ArrayList<String> palabraBuena, ArrayList<String> palabraEntrada) {
+        int[] repeats = {0,0,0,0,0};
 
-        for (int i = 0; i < inputWord.size(); i++) {
-            for (int j = inputWord.size() - 1; j >= 0; j--) {
-                if(inputWord.get(i).equals(inputWord.get(j)) && !inputWord.get(i).equals("")){
+        for (int i = 0; i < palabraBuena.size(); i++) {
+            for (int j = palabraBuena.size() - 1; j >= i; j--) {
+                if(palabraBuena.get(i).equals(palabraBuena.get(j)) && !palabraBuena.get(i).equals("")){
                     repeats[i]++;
+                    System.out.println(palabraBuena.get(i));
                 }
             }
         }
 
-        for (int i = 0; i < inputWord.size(); i++) {
-            if (repeats[i]!=0 && word.contains(inputWord.get(i))) {
+        for (int i = 0; i < palabraEntrada.size(); i++) {
+            if (repeats[i]!= 0 && palabraBuena.contains(palabraEntrada.get(i))) {
                 allTrys.get(currentTry).get(i).setBackground(Color.yellow);
                 repeats[i]--;
             }
         }
         
         currentTry++;
+        
+        if(currentTry==6){
+            gameInstance.TextFieldPalabra.setEnabled(false);
+            gameInstance.BotonEnviar.setEnabled(false);
+            Component[] aux = gameInstance.tableroDerrota.getContentPane().getComponents();
+            for (int i = 0; i < aux.length; i++) {
+                if(aux[i].getClass() == JLabel.class){
+                    JLabel label = (JLabel) aux[i];
+                    label.setText("La palabra es: " + word);
+                }
+            }
+            gameInstance.tableroDerrota.setSize(400,250);
+            gameInstance.tableroDerrota.setVisible(true);
+        }
     }
 }
